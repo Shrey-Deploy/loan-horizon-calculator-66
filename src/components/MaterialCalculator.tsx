@@ -112,7 +112,7 @@ export function MaterialCalculator() {
           
           <Box component="form" sx={{ mt: 3 }}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={4}>
+              <Grid xs={12} md={4}>
                 <TextField
                   label="Loan Amount"
                   fullWidth
@@ -126,7 +126,7 @@ export function MaterialCalculator() {
                 />
               </Grid>
               
-              <Grid item xs={12} md={4}>
+              <Grid xs={12} md={4}>
                 <TextField
                   label="Loan Term (Years)"
                   fullWidth
@@ -137,7 +137,7 @@ export function MaterialCalculator() {
                 />
               </Grid>
               
-              <Grid item xs={12} md={4}>
+              <Grid xs={12} md={4}>
                 <TextField
                   label="Interest Rate (%)"
                   fullWidth
@@ -174,7 +174,7 @@ export function MaterialCalculator() {
             </Typography>
             
             <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Monthly Payment
                 </Typography>
@@ -183,7 +183,7 @@ export function MaterialCalculator() {
                 </Typography>
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6}>
                 <FormControl fullWidth>
                   <InputLabel>Currency</InputLabel>
                   <Select

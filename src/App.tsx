@@ -20,10 +20,10 @@ const MaterialThemeProvider = ({ children }: { children: React.ReactNode }) => {
     palette: {
       mode: theme === 'dark' ? 'dark' : 'light',
       primary: {
-        main: '#9b87f5',
+        main: '#1976d2', // Blue instead of pink
       },
       secondary: {
-        main: '#7E69AB',
+        main: '#42a5f5', // Lighter blue
       },
     },
   });

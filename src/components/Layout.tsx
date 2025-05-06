@@ -107,7 +107,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <List>
             {navItems.map((item) => (
               <ListItem 
-                button 
                 key={item.name} 
                 component={RouterLink} 
                 to={item.path}
