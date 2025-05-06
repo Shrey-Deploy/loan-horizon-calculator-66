@@ -1,24 +1,22 @@
 
 import React, { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import {
+  Container,
+  Typography,
+  TextField,
+  Paper,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
-  TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+  TablePagination,
+  Divider,
+  CircularProgress,
+  Box,
+  Alert
+} from "@mui/material";
 
 interface ExchangeRate {
   code: string;
@@ -26,173 +24,177 @@ interface ExchangeRate {
   rate: number;
 }
 
-const sampleRates: ExchangeRate[] = [
-  { code: "USD", name: "US Dollar", rate: 1 },
-  { code: "EUR", name: "Euro", rate: 0.91 },
-  { code: "GBP", name: "British Pound", rate: 0.78 },
-  { code: "JPY", name: "Japanese Yen", rate: 151.72 },
-  { code: "CAD", name: "Canadian Dollar", rate: 1.36 },
-  { code: "AUD", name: "Australian Dollar", rate: 1.51 },
-  { code: "CHF", name: "Swiss Franc", rate: 0.89 },
-  { code: "CNY", name: "Chinese Yuan", rate: 7.23 },
-  { code: "INR", name: "Indian Rupee", rate: 83.45 },
-  { code: "SGD", name: "Singapore Dollar", rate: 1.35 },
-  { code: "MXN", name: "Mexican Peso", rate: 16.62 },
-  { code: "BRL", name: "Brazilian Real", rate: 5.06 },
-  { code: "KRW", name: "South Korean Won", rate: 1349.24 },
-  { code: "SEK", name: "Swedish Krona", rate: 10.48 },
-  { code: "NOK", name: "Norwegian Krone", rate: 10.71 },
-  { code: "DKK", name: "Danish Krone", rate: 6.83 },
-  { code: "PLN", name: "Polish Złoty", rate: 3.94 },
-  { code: "ILS", name: "Israeli Shekel", rate: 3.68 },
-  { code: "HKD", name: "Hong Kong Dollar", rate: 7.81 },
-  { code: "ZAR", name: "South African Rand", rate: 18.59 },
-];
+// Currency names map for better display
+const currencyNames: Record<string, string> = {
+  USD: "US Dollar",
+  EUR: "Euro",
+  GBP: "British Pound",
+  JPY: "Japanese Yen",
+  CAD: "Canadian Dollar",
+  AUD: "Australian Dollar",
+  CHF: "Swiss Franc",
+  CNY: "Chinese Yuan",
+  INR: "Indian Rupee",
+  NZD: "New Zealand Dollar",
+  SGD: "Singapore Dollar",
+  MXN: "Mexican Peso",
+  BRL: "Brazilian Real",
+  KRW: "South Korean Won",
+  SEK: "Swedish Krona",
+  NOK: "Norwegian Krone",
+  DKK: "Danish Krone",
+  PLN: "Polish Złoty",
+  ILS: "Israeli Shekel",
+  HKD: "Hong Kong Dollar",
+  ZAR: "South African Rand",
+  AED: "UAE Dirham",
+  THB: "Thai Baht",
+  RUB: "Russian Ruble",
+  TRY: "Turkish Lira",
+  // Many more could be added here
+};
 
 const ExchangeRates = () => {
-  const [rates, setRates] = useState<ExchangeRate[]>(sampleRates);
+  const [rates, setRates] = useState<ExchangeRate[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const itemsPerPage = 10;
-  
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchExchangeRates = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const response = await fetch('https://v6.exchangerate-api.com/v6/d8730fbf7f0a361e681fcca7/latest/USD');
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.result !== "success") {
+          throw new Error(`API returned error: ${data.error || 'Unknown error'}`);
+        }
+        
+        // Convert to our format
+        const formattedRates: ExchangeRate[] = Object.entries(data.conversion_rates).map(
+          ([code, rate]) => ({
+            code,
+            name: currencyNames[code] || code,
+            rate: rate as number
+          })
+        );
+        
+        // Sort by currency code
+        formattedRates.sort((a, b) => a.code.localeCompare(b.code));
+        
+        setRates(formattedRates);
+      } catch (err) {
+        console.error("Error fetching exchange rates:", err);
+        setError("Failed to load exchange rates. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchExchangeRates();
+  }, []);
+
   // Filter rates based on search query
   const filteredRates = rates.filter(
     rate =>
       rate.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
       rate.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
-  // Calculate pagination
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentRates = filteredRates.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredRates.length / itemsPerPage);
-  
-  const paginate = (pageNumber: number) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setCurrentPage(newPage);
   };
-  
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setCurrentPage(0);
+  };
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(0); // Reset to first page when searching
   };
 
-  useEffect(() => {
-    // In a real implementation, we would fetch the exchange rates from the API
-    // For now, we'll use the sample data
-    // Example API call would be:
-    // const fetchExchangeRates = async () => {
-    //   setIsLoading(true);
-    //   try {
-    //     const response = await fetch('https://v6.exchangerate-api.com/v6/YOUR_API_KEY/latest/USD');
-    //     const data = await response.json();
-    //     // Process and set rates
-    //   } catch (error) {
-    //     console.error('Error fetching rates:', error);
-    //   } finally {
-    //     setIsLoading(false);
-    //   }
-    // };
-    // fetchExchangeRates();
-  }, []);
+  // Get current rows for pagination
+  const currentRates = filteredRates.slice(
+    currentPage * rowsPerPage,
+    currentPage * rowsPerPage + rowsPerPage
+  );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Exchange Rates</h1>
-        <p className="text-muted-foreground mt-2">
-          Current exchange rates for major world currencies (against USD)
-        </p>
-      </div>
-      
-      <Separator />
-      
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Currency Exchange Rates</CardTitle>
-          <CardDescription>
-            Exchange rates are updated regularly from trusted financial sources.
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent className="space-y-4">
-          <Input
-            placeholder="Search currency..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="max-w-sm"
-          />
-          
-          <div className="rounded-md border">
+    <Container>
+      <Typography variant="h4" gutterBottom>
+        Exchange Rates
+      </Typography>
+      <Typography variant="subtitle1" color="text.secondary" paragraph>
+        Current exchange rates for major world currencies (against USD)
+      </Typography>
+
+      <Divider sx={{ my: 3 }} />
+
+      <TextField
+        label="Search currency"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        sx={{ mb: 3, maxWidth: 400 }}
+      />
+
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Alert severity="error" sx={{ my: 4 }}>
+          {error}
+        </Alert>
+      ) : (
+        <>
+          <TableContainer component={Paper} sx={{ mb: 3 }}>
             <Table>
-              <TableHeader>
+              <TableHead>
                 <TableRow>
-                  <TableHead className="w-[100px]">Code</TableHead>
-                  <TableHead>Currency</TableHead>
-                  <TableHead className="text-right">Rate (USD)</TableHead>
+                  <TableCell>Code</TableCell>
+                  <TableCell>Currency</TableCell>
+                  <TableCell align="right">Rate (USD)</TableCell>
                 </TableRow>
-              </TableHeader>
+              </TableHead>
               <TableBody>
                 {currentRates.map((rate) => (
                   <TableRow key={rate.code}>
-                    <TableCell className="font-medium">{rate.code}</TableCell>
+                    <TableCell><strong>{rate.code}</strong></TableCell>
                     <TableCell>{rate.name}</TableCell>
-                    <TableCell className="text-right">{rate.rate.toFixed(4)}</TableCell>
+                    <TableCell align="right">{rate.rate.toFixed(4)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          </div>
-          
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => paginate(currentPage - 1)}
-                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-              
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
-                
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-                
-                return (
-                  <PaginationItem key={pageNum}>
-                    <PaginationLink
-                      isActive={currentPage === pageNum}
-                      onClick={() => paginate(pageNum)}
-                    >
-                      {pageNum}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              })}
-              
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => paginate(currentPage + 1)}
-                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardContent>
-      </Card>
-    </div>
+          </TableContainer>
+
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            component="div"
+            count={filteredRates.length}
+            rowsPerPage={rowsPerPage}
+            page={currentPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </>
+      )}
+    </Container>
   );
 };
 

@@ -21,8 +21,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination
+  TablePagination,
+  IconButton
 } from "@mui/material";
+import { RestartAlt } from "@mui/icons-material";
 import { calculateEMI, formatCurrency, generateAmortizationSchedule, type AmortizationRow } from "@/utils/calculationUtils";
 
 interface Currency {
@@ -75,6 +77,21 @@ export function MaterialCalculator() {
     setAmortizationSchedule(schedule);
     
     setIsCalculated(true);
+  };
+
+  const handleReset = () => {
+    // Reset form inputs to default values
+    setLoanAmount("250000");
+    setLoanTerm("15");
+    setInterestRate("5.5");
+    
+    // Clear results
+    setMonthlyPayment(null);
+    setAmortizationSchedule([]);
+    setIsCalculated(false);
+    setPage(0);
+    setCurrency("USD");
+    setExchangeRate(1);
   };
 
   const handleCurrencyChange = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -169,9 +186,19 @@ export function MaterialCalculator() {
       {isCalculated && monthlyPayment && (
         <Card elevation={3}>
           <CardContent>
-            <Typography variant="h5" component="div" gutterBottom>
-              Results
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h5" component="div">
+                Results
+              </Typography>
+              <IconButton 
+                color="primary" 
+                onClick={handleReset}
+                aria-label="reset calculator"
+                title="Reset Calculator"
+              >
+                <RestartAlt />
+              </IconButton>
+            </Box>
             
             <Grid container spacing={3} sx={{ mb: 3 }}>
               <Grid xs={12} md={6}>
