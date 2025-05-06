@@ -17,7 +17,8 @@ import {
   useMediaQuery,
   ThemeProvider as MuiThemeProvider,
   createTheme,
-  CssBaseline
+  CssBaseline,
+  ListItemButton
 } from "@mui/material";
 import { Menu as MenuIcon, Brightness4, Brightness7 } from "@mui/icons-material";
 import { useTheme } from "@/hooks/useTheme";
@@ -122,14 +123,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <Box sx={{ width: 250 }} role="presentation">
             <List>
               {navItems.map((item) => (
-                <ListItem 
-                  key={item.name} 
-                  component={RouterLink} 
-                  to={item.path}
-                  onClick={() => setMobileNavOpen(false)}
-                  selected={location.pathname === item.path}
-                >
-                  <ListItemText primary={item.name} />
+                <ListItem key={item.name} disablePadding>
+                  <ListItemButton
+                    component={RouterLink}
+                    to={item.path}
+                    onClick={() => setMobileNavOpen(false)}
+                    selected={location.pathname === item.path}
+                  >
+                    <ListItemText primary={item.name} />
+                  </ListItemButton>
                 </ListItem>
               ))}
             </List>

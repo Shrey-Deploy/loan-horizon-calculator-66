@@ -6,7 +6,7 @@ import {
   Card, 
   CardContent, 
   Typography, 
-  Grid, 
+  Grid as MuiGrid, 
   MenuItem, 
   Select, 
   InputLabel, 
@@ -128,8 +128,8 @@ export function MaterialCalculator() {
           </Typography>
           
           <Box component="form" sx={{ mt: 3 }}>
-            <Grid container spacing={3}>
-              <Grid xs={12} md={4}>
+            <MuiGrid container spacing={3}>
+              <MuiGrid item xs={12} md={4}>
                 <TextField
                   label="Loan Amount"
                   fullWidth
@@ -141,9 +141,9 @@ export function MaterialCalculator() {
                   }}
                   helperText="Enter the total loan amount"
                 />
-              </Grid>
+              </MuiGrid>
               
-              <Grid xs={12} md={4}>
+              <MuiGrid item xs={12} md={4}>
                 <TextField
                   label="Loan Term (Years)"
                   fullWidth
@@ -152,9 +152,9 @@ export function MaterialCalculator() {
                   onChange={(e) => setLoanTerm(e.target.value)}
                   helperText="Enter the loan term in years"
                 />
-              </Grid>
+              </MuiGrid>
               
-              <Grid xs={12} md={4}>
+              <MuiGrid item xs={12} md={4}>
                 <TextField
                   label="Interest Rate (%)"
                   fullWidth
@@ -166,8 +166,8 @@ export function MaterialCalculator() {
                   }}
                   helperText="Enter the annual interest rate"
                 />
-              </Grid>
-            </Grid>
+              </MuiGrid>
+            </MuiGrid>
             
             <Button 
               variant="contained" 
@@ -200,17 +200,17 @@ export function MaterialCalculator() {
               </IconButton>
             </Box>
             
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid xs={12} md={6}>
+            <MuiGrid container spacing={3} sx={{ mb: 3 }}>
+              <MuiGrid item xs={12} md={6}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Monthly Payment
                 </Typography>
                 <Typography variant="h4" color="primary">
                   {formatCurrency(monthlyPayment * exchangeRate, currency)}
                 </Typography>
-              </Grid>
+              </MuiGrid>
               
-              <Grid xs={12} md={6}>
+              <MuiGrid item xs={12} md={6}>
                 <FormControl fullWidth>
                   <InputLabel>Currency</InputLabel>
                   <Select
@@ -225,8 +225,8 @@ export function MaterialCalculator() {
                     ))}
                   </Select>
                 </FormControl>
-              </Grid>
-            </Grid>
+              </MuiGrid>
+            </MuiGrid>
             
             <Divider sx={{ my: 3 }} />
             
