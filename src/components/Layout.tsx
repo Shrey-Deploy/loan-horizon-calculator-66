@@ -1,10 +1,24 @@
 
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { ThemeToggle } from "./ThemeToggle";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+import { Link as RouterLink, useLocation } from "react-router-dom";
+import { 
+  AppBar, 
+  Toolbar, 
+  Typography, 
+  Button, 
+  IconButton, 
+  Drawer, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  Box, 
+  Container, 
+  Divider,
+  useTheme as useMuiTheme,
+  useMediaQuery
+} from "@mui/material";
+import { Menu as MenuIcon, Brightness4, Brightness7 } from "@mui/icons-material";
+import { useTheme } from "@/hooks/useTheme";
 
 interface NavItem {
   name: string;
@@ -20,85 +34,114 @@ const navItems: NavItem[] = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const location = useLocation();
+  const { setTheme, theme } = useTheme();
+  const muiTheme = useMuiTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
+  
+  const toggleDarkMode = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between py-4">
-          <div className="flex items-center gap-6 md:gap-10">
-            <Link to="/" className="flex items-center space-x-2">
-              <span className="font-bold text-xl text-primary">Loan<span className="text-accent">Horizon</span></span>
-            </Link>
-            <nav className="hidden md:flex gap-6">
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <AppBar position="sticky">
+        <Toolbar>
+          <Typography 
+            variant="h6" 
+            component={RouterLink} 
+            to="/" 
+            sx={{ 
+              flexGrow: 1, 
+              textDecoration: 'none', 
+              color: 'inherit',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            Loan<Box component="span" sx={{ color: 'secondary.main' }}>Horizon</Box>
+          </Typography>
+          
+          {!isMobile && (
+            <Box sx={{ display: 'flex' }}>
               {navItems.map((item) => (
-                <Link
+                <Button
                   key={item.path}
+                  component={RouterLink}
                   to={item.path}
-                  className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary",
-                    location.pathname === item.path
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                  )}
+                  sx={{ 
+                    color: 'white',
+                    opacity: location.pathname === item.path ? 1 : 0.7,
+                    mr: 2
+                  }}
                 >
                   {item.name}
-                </Link>
+                </Button>
               ))}
-            </nav>
-          </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Button
-              className="md:hidden"
-              variant="ghost"
-              size="icon"
+            </Box>
+          )}
+          
+          <IconButton onClick={toggleDarkMode} color="inherit">
+            {theme === 'dark' ? <Brightness7 /> : <Brightness4 />}
+          </IconButton>
+          
+          {isMobile && (
+            <IconButton 
+              edge="end" 
+              color="inherit" 
+              aria-label="menu" 
               onClick={() => setMobileNavOpen(!mobileNavOpen)}
             >
-              {mobileNavOpen ? <X /> : <Menu />}
-            </Button>
-          </div>
-        </div>
-      </header>
+              <MenuIcon />
+            </IconButton>
+          )}
+        </Toolbar>
+      </AppBar>
       
-      {/* Mobile navigation */}
-      {mobileNavOpen && (
-        <div className="md:hidden fixed inset-0 top-16 z-30 bg-background animate-in">
-          <nav className="container grid gap-6 p-6">
+      {/* Mobile Navigation Drawer */}
+      <Drawer
+        anchor="right"
+        open={mobileNavOpen && isMobile}
+        onClose={() => setMobileNavOpen(false)}
+      >
+        <Box sx={{ width: 250 }} role="presentation">
+          <List>
             {navItems.map((item) => (
-              <Link
-                key={item.path}
+              <ListItem 
+                button 
+                key={item.name} 
+                component={RouterLink} 
                 to={item.path}
                 onClick={() => setMobileNavOpen(false)}
-                className={cn(
-                  "text-lg font-medium p-2",
-                  location.pathname === item.path
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                )}
+                selected={location.pathname === item.path}
               >
-                {item.name}
-              </Link>
+                <ListItemText primary={item.name} />
+              </ListItem>
             ))}
-          </nav>
-        </div>
-      )}
+          </List>
+        </Box>
+      </Drawer>
       
-      <main className="flex-1 container py-6 md:py-10">
+      <Box component="main" sx={{ flexGrow: 1, py: 3 }}>
         {children}
-      </main>
+      </Box>
       
-      <footer className="border-t py-6 md:py-0">
-        <div className="container flex flex-col md:h-16 items-center md:flex-row md:justify-between">
-          <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} LoanHorizon. All rights reserved.
-          </p>
-          <div className="md:flex md:items-center md:justify-end mt-4 md:mt-0">
-            <p className="text-sm text-muted-foreground">
-              Built with React, Tailwind CSS & shadcn/ui
-            </p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      <Box component="footer" sx={{ py: 3, mt: 'auto', borderTop: 1, borderColor: 'divider' }}>
+        <Container>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', md: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'center', md: 'flex-start' }
+          }}>
+            <Typography variant="body2" color="text.secondary">
+              &copy; {new Date().getFullYear()} LoanHorizon. All rights reserved.
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: { xs: 2, md: 0 } }}>
+              Built with React, Material UI & React Router
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
+    </Box>
   );
 }

@@ -1,22 +1,24 @@
 
 import React from "react";
-import { Calculator } from "@/components/Calculator";
-import { Separator } from "@/components/ui/separator";
+import { Typography, Container, Divider, Box } from "@mui/material";
+import { MaterialCalculator } from "@/components/MaterialCalculator";
 
 const Index = () => {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Loan Horizon Calculator</h1>
-        <p className="text-muted-foreground mt-2">
+    <Container>
+      <Box sx={{ my: 3 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Loan Horizon Calculator
+        </Typography>
+        <Typography variant="subtitle1" color="text.secondary">
           Calculate your monthly payments, view amortization schedules, and compare loan options in multiple currencies.
-        </p>
-      </div>
+        </Typography>
+      </Box>
       
-      <Separator />
+      <Divider sx={{ my: 3 }} />
       
-      <Calculator />
-    </div>
+      <MaterialCalculator />
+    </Container>
   );
 };
 

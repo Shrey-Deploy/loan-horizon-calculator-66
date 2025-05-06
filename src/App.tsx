@@ -1,10 +1,8 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "@/hooks/useTheme";
+import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+import { useTheme } from "@/hooks/useTheme";
 
 import Layout from "@/components/Layout";
 import Index from "./pages/Index";
@@ -14,24 +12,44 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Custom MUI theme provider that uses the existing useTheme hook
+const MaterialThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  const { theme } = useTheme();
+  
+  const muiTheme = createTheme({
+    palette: {
+      mode: theme === 'dark' ? 'dark' : 'light',
+      primary: {
+        main: '#9b87f5',
+      },
+      secondary: {
+        main: '#7E69AB',
+      },
+    },
+  });
+
+  return (
+    <ThemeProvider theme={muiTheme}>
+      <CssBaseline />
+      {children}
+    </ThemeProvider>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="system">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/exchange-rates" element={<ExchangeRates />} />
-              <Route path="/about" element={<About />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
+    <MaterialThemeProvider>
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/exchange-rates" element={<ExchangeRates />} />
+            <Route path="/about" element={<About />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Layout>
+      </BrowserRouter>
+    </MaterialThemeProvider>
   </QueryClientProvider>
 );
 

@@ -1,7 +1,7 @@
 
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, Box, Typography, Container } from "@mui/material";
 import { Link } from "react-router-dom";
 
 const NotFound = () => {
@@ -15,18 +15,36 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center bg-background">
-      <div className="text-center space-y-6 max-w-md px-4">
-        <h1 className="text-6xl font-bold text-primary">404</h1>
-        <p className="text-2xl font-semibold mb-4">Oops! Page not found</p>
-        <p className="text-muted-foreground mb-8">
+    <Container maxWidth="sm">
+      <Box 
+        sx={{ 
+          minHeight: '80vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center'
+        }}
+      >
+        <Typography variant="h1" color="primary" gutterBottom>
+          404
+        </Typography>
+        <Typography variant="h4" gutterBottom>
+          Oops! Page not found
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
           We couldn't find the page you were looking for. It might have been moved or doesn't exist.
-        </p>
-        <Button asChild className="loan-gradient">
-          <Link to="/">Return to Home</Link>
+        </Typography>
+        <Button 
+          component={Link} 
+          to="/" 
+          variant="contained" 
+          color="primary"
+        >
+          Return to Home
         </Button>
-      </div>
-    </div>
+      </Box>
+    </Container>
   );
 };
 
